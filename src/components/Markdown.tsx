@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Fragment } from "react";
+import { cleanLink } from "@/lib/links";
 
 const TOKEN = /(\*\*[^*]+\*\*|\[[^\]]+\]\([^)\s]+\)|(?<![\w*])_[^_]+_(?![\w]))/g;
 
@@ -17,8 +18,18 @@ function inline(text: string): React.ReactNode[] {
     }
     const link = part.match(/^\[([^\]]+)\]\(([^)\s]+)\)$/);
     if (link) {
-      const [, label, href] = link;
+      const label = link[1];
+      const href = cleanLink(link[2]);
+      // Dead or unusable links are shown as plain text.
+      if (!href) return <Fragment key={i}>{inline(label)}</Fragment>;
       const cls = "text-obsidian underline decoration-gold/60 underline-offset-4 hover:text-gold transition-colors";
+      if (href.startsWith("mailto:") || href.startsWith("tel:")) {
+        return (
+          <a key={i} href={href} className={cls}>
+            {inline(label)}
+          </a>
+        );
+      }
       return href.startsWith("/") ? (
         <Link key={i} href={href} className={cls}>
           {inline(label)}

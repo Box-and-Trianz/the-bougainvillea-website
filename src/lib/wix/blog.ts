@@ -1,5 +1,6 @@
 import "server-only";
 import { posts as localPosts, type Post } from "@/content/blog";
+import { cleanLink } from "@/lib/links";
 
 /* ----------------------------------------------------------------------------
  * The Journal's data source.
@@ -51,20 +52,6 @@ type WixPost = {
 const mediaUrl = (src?: { id?: string; url?: string }) =>
   src?.url?.startsWith("http") ? src.url : src?.id ? `https://static.wixstatic.com/media/${src.id}` : undefined;
 
-/** Links back to the old Wix URLs are pointed at the matching pages on this site. */
-function internalLink(url: string) {
-  try {
-    const u = new URL(url);
-    if (!/thebouga(i)?n?villeas\.com$/i.test(u.hostname)) return url;
-    const p = u.pathname.replace(/\/$/, "") || "/";
-    if (p.startsWith("/post/")) return `/blog/${p.slice(6)}`;
-    if (p.startsWith("/blog-1")) return "/blog";
-    const map: Record<string, string> = { "/home": "/", "/frequentlyaskedquestions": "/faq", "/the-grand-ballroon": "/the-grand-ballroom", "/ballrooms": "/gallery" };
-    return map[p] ?? p;
-  } catch {
-    return url;
-  }
-}
 
 function text(nodes: WixNode[] = []): string {
   return nodes
@@ -78,7 +65,10 @@ function text(nodes: WixNode[] = []): string {
       for (const d of n.textData.decorations ?? []) {
         if (d.type === "BOLD" && (d.fontWeightValue ?? 700) >= 600) t = `**${t}**`;
         else if (d.type === "ITALIC") t = `_${t}_`;
-        else if (d.type === "LINK" && d.linkData?.link?.url) t = `[${t}](${internalLink(d.linkData.link.url)})`;
+        else if (d.type === "LINK" && d.linkData?.link?.url) {
+          const href = cleanLink(d.linkData.link.url);
+          if (href) t = `[${t}](${href.replace(/\(/g, "%28").replace(/\)/g, "%29")})`;
+        }
       }
       return lead + t + trail;
     })

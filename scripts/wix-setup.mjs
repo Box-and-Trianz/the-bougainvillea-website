@@ -111,7 +111,7 @@ const existing = await wix("POST", "/form-schema-service/v4/forms/query", {
 const byName = new Map((existing.forms ?? []).map((f) => [f.properties?.name ?? f.name, f]));
 
 const ids = {};
-for (const [key, def] of Object.entries(forms)) {
+for (const def of Object.values(forms)) {
   const found = byName.get(def.name);
   if (found) {
     const targets = new Set((found.formFields ?? []).map((f) => f.inputOptions?.target).filter(Boolean));

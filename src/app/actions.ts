@@ -34,10 +34,8 @@ export async function submitForm(key: FormKey, _prev: FormState, formData: FormD
 
   // Honeypot: real visitors never see or fill this field.
   if (String(formData.get("website") ?? "").trim()) return { status: "success", firstName: values.first_name || "friend" };
-  // Too fast to be human (form rendered < 2s ago).
-  const started = Number(formData.get("started_at") ?? 0);
-  if (started && Date.now() - started < 2000) return { status: "success", firstName: values.first_name || "friend" };
 
+  // Validate first, so a visitor who submits an incomplete form quickly still sees what's missing.
   const fieldErrors: Record<string, string> = {};
   for (const f of def.fields) {
     if (f.required && !values[f.name]) fieldErrors[f.name] = `${f.label} is required`;
@@ -47,6 +45,10 @@ export async function submitForm(key: FormKey, _prev: FormState, formData: FormD
   if (Object.keys(fieldErrors).length) {
     return { status: "error", message: "Please check the highlighted fields.", fieldErrors, values };
   }
+
+  // A complete form sent < 2s after it appeared is a bot: pretend it worked, send nothing.
+  const started = Number(formData.get("started_at") ?? 0);
+  if (started && Date.now() - started < 2000) return { status: "success", firstName: values.first_name || "friend" };
 
   const h = await headers();
   const ip = h.get("x-forwarded-for")?.split(",")[0].trim() || h.get("x-real-ip") || "local";
