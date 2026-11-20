@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+@theme {
+  --color-silk: #fcfaf7;
+  --color-obsidian: #1a1a1a;
+  --color-gold: #a68b5b;
+  --color-champagne: #e8ded1;
+
+  --font-display: var(--font-cormorant), "Cormorant Garamond", ui-serif, Georgia, serif;
+  --font-body: var(--font-montserrat), "Montserrat", ui-sans-serif, system-ui, sans-serif;
+
+  --tracking-luxe: 0.35em;
+  --tracking-wide-luxe: 0.2em;
+
+  /* original theme: --radius .25rem, rounded-sm = radius - 4px */
+  --radius-sm: 0px;
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-silk);
+    color: var(--color-obsidian);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  button {
+    cursor: pointer;
+  }
+}
+
+@utility glass {
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
+  background: #fcfaf7b8;
+}
+
+@utility glass-dark {
+  -webkit-backdrop-filter: blur(16px) saturate(130%);
+  backdrop-filter: blur(16px) saturate(130%);
+  background: #1a1a1a8c;
+}
+
+@utility arch-mask {
+  border-radius: 9999px 9999px 24px 24px;
+}
+
+@utility silk-weave {
+  background-image:
+    radial-gradient(circle at 20% 20%, #a68b5b0d 0%, #0000 50%),
+    radial-gradient(circle at 80% 80%, #a68b5b0a 0%, #0000 50%);
+}
+
+@utility text-shadow-luxe {
+  text-shadow: 0 2px 30px #00000073;
+}

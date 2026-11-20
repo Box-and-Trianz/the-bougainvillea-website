@@ -1,0 +1,66 @@
+{
+  "inquiry": {
+    "name": "Website Inquiry",
+    "env": "WIX_FORM_INQUIRY",
+    "fields": [
+      { "name": "first_name", "label": "First Name", "kind": "firstName", "required": true },
+      { "name": "last_name", "label": "Last Name", "kind": "lastName", "required": true },
+      { "name": "phone", "label": "Phone", "kind": "phone", "required": true },
+      { "name": "email", "label": "Email", "kind": "email", "required": true },
+      { "name": "event_type", "label": "Event Type", "kind": "text", "required": true },
+      { "name": "preferred_date", "label": "Preferred Date", "kind": "text" },
+      { "name": "message", "label": "Tell us about your celebration", "kind": "textarea" },
+      { "name": "page_source", "label": "Submitted From", "kind": "text" }
+    ]
+  },
+  "brochure": {
+    "name": "Brochure Request",
+    "env": "WIX_FORM_BROCHURE",
+    "fields": [
+      { "name": "first_name", "label": "First Name", "kind": "firstName", "required": true },
+      { "name": "last_name", "label": "Last Name", "kind": "lastName", "required": true },
+      { "name": "phone", "label": "Phone", "kind": "phone", "required": true },
+      { "name": "email", "label": "Email", "kind": "email", "required": true },
+      { "name": "event_type", "label": "Event Type", "kind": "text", "required": true },
+      { "name": "preferred_date", "label": "Preferred Date", "kind": "text" },
+      { "name": "message", "label": "Tell us about your celebration", "kind": "textarea" },
+      { "name": "page_source", "label": "Submitted From", "kind": "text" }
+    ]
+  },
+  "corporate": {
+    "name": "Corporate Event Inquiry",
+    "env": "WIX_FORM_CORPORATE",
+    "fields": [
+      { "name": "first_name", "label": "First Name", "kind": "firstName", "required": true },
+      { "name": "last_name", "label": "Last Name", "kind": "lastName", "required": true },
+      { "name": "email", "label": "Email", "kind": "email", "required": true },
+      { "name": "phone", "label": "Phone", "kind": "phone", "required": true },
+      { "name": "company", "label": "Company Name", "kind": "text" },
+      { "name": "event_date", "label": "Preferred Event Date", "kind": "text", "required": true },
+      { "name": "event_timing", "label": "Event Timing", "kind": "text", "required": true },
+      { "name": "guest_count", "label": "Estimated Guest Count", "kind": "text", "required": true },
+      { "name": "event_type", "label": "Type of Event", "kind": "text", "required": true },
+      { "name": "catering_needs", "label": "Catering Needs", "kind": "text", "required": true },
+      { "name": "tour_datetime", "label": "Preferred Venue Tour Date & Time", "kind": "text" },
+      { "name": "message", "label": "Message / Special Requests", "kind": "textarea" },
+      { "name": "page_source", "label": "Submitted From", "kind": "text" }
+    ]
+  },
+  "tour": {
+    "name": "Venue Tour Request",
+    "env": "WIX_FORM_TOUR",
+    "fields": [
+      { "name": "first_name", "label": "First Name", "kind": "firstName", "required": true },
+      { "name": "last_name", "label": "Last Name", "kind": "lastName", "required": true },
+      { "name": "email", "label": "Email", "kind": "email", "required": true },
+      { "name": "phone", "label": "Phone", "kind": "phone", "required": true },
+      { "name": "tour_date", "label": "Preferred Tour Date", "kind": "text", "required": true },
+      { "name": "tour_time", "label": "Preferred Time", "kind": "text", "required": true },
+      { "name": "event_type", "label": "Event Type", "kind": "text", "required": true },
+      { "name": "guest_count", "label": "Estimated Guests", "kind": "text" },
+      { "name": "tour_style", "label": "Tour Style", "kind": "text", "required": true },
+      { "name": "message", "label": "Anything we should know?", "kind": "textarea" },
+      { "name": "page_source", "label": "Submitted From", "kind": "text" }
+    ]
+  }
+}
