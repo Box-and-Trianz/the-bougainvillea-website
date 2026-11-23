@@ -84,7 +84,7 @@ export function businessJsonLd() {
     description:
       "Boutique wedding and event venue in West Houston with a Grand Ballroom, Chapel, Wine Room and Wedding Suite, in-house catering and a dedicated planning team.",
     url: SITE_URL,
-    logo: abs("/icon.png"),
+    logo: abs("/icons/icon-512.png"),
     image: [abs(DEFAULT_OG_IMAGE), abs(venues[0]?.image ?? "/images/hero/hero-1.jpg")],
     telephone: `+1-${site.phone}`,
     email: site.email,
