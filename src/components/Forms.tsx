@@ -2,7 +2,7 @@
 
 import { AlertCircle, Check, Loader2 } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { createContext, useActionState, useContext, useEffect, useState } from "react";
+import { createContext, useActionState, useContext, useEffect, useId, useState } from "react";
 import { submitForm, type FormState } from "@/app/actions";
 import type { FormKey } from "@/lib/wix/submit";
 
@@ -16,24 +16,25 @@ const fieldCls =
   "w-full bg-transparent border-b py-2.5 text-sm font-body text-obsidian placeholder:text-obsidian/30 focus:border-gold focus:outline-none transition-colors";
 const labelCls = "text-[10px] font-body uppercase tracking-wide-luxe text-obsidian/50";
 
-const FormCtx = createContext<{ state: FormState }>({ state: { status: "idle" } });
+// `idPrefix` keeps element ids unique when a page shows more than one form.
+const FormCtx = createContext<{ state: FormState; idPrefix: string }>({ state: { status: "idle" }, idPrefix: "f" });
 
 function useField(name: string) {
-  const { state } = useContext(FormCtx);
+  const { state, idPrefix } = useContext(FormCtx);
   const error = state.status === "error" ? state.fieldErrors?.[name] : undefined;
   const value = state.status === "error" ? state.values?.[name] : undefined;
-  return { error, value };
+  return { error, value, id: `${idPrefix}-${name}` };
 }
 
-function FieldShell({ label, name, error, children }: { label: string; name: string; error?: string; children: React.ReactNode }) {
+function FieldShell({ label, id, error, children }: { label: string; id: string; error?: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={name} className={labelCls}>
+      <label htmlFor={id} className={labelCls}>
         {label}
       </label>
       {children}
       {error && (
-        <p id={`${name}-error`} className="text-[11px] font-body text-red-700">
+        <p id={`${id}-error`} className="text-[11px] font-body text-red-700">
           {error}
         </p>
       )}
@@ -42,16 +43,16 @@ function FieldShell({ label, name, error, children }: { label: string; name: str
 }
 
 export function Input({ label, name, ...props }: { label: string; name: string } & React.InputHTMLAttributes<HTMLInputElement>) {
-  const { error, value } = useField(name);
+  const { error, value, id } = useField(name);
   return (
-    <FieldShell label={label} name={name} error={error}>
+    <FieldShell label={label} id={id} error={error}>
       <input
-        id={name}
+        id={id}
         name={name}
         key={value ?? "init"}
         defaultValue={value}
         aria-invalid={!!error}
-        aria-describedby={error ? `${name}-error` : undefined}
+        aria-describedby={error ? `${id}-error` : undefined}
         {...props}
         className={`${fieldCls} ${error ? "border-red-700/60" : "border-obsidian/20"}`}
       />
@@ -67,11 +68,11 @@ export function Select({
   defaultOption,
   ...props
 }: { label: string; name: string; options: string[]; placeholder?: string; defaultOption?: string } & React.SelectHTMLAttributes<HTMLSelectElement>) {
-  const { error, value } = useField(name);
+  const { error, value, id } = useField(name);
   return (
-    <FieldShell label={label} name={name} error={error}>
+    <FieldShell label={label} id={id} error={error}>
       <select
-        id={name}
+        id={id}
         name={name}
         key={value ?? "init"}
         defaultValue={value ?? defaultOption ?? ""}
@@ -93,11 +94,11 @@ export function Select({
 }
 
 export function Textarea({ label, name }: { label: string; name: string }) {
-  const { error, value } = useField(name);
+  const { error, value, id } = useField(name);
   return (
-    <FieldShell label={label} name={name} error={error}>
+    <FieldShell label={label} id={id} error={error}>
       <textarea
-        id={name}
+        id={id}
         name={name}
         rows={3}
         maxLength={4000}
@@ -166,6 +167,7 @@ export function WixForm({ formKey, submitLabel, successMessage, footnote, childr
 
 function WixFormInner({ formKey, submitLabel, successMessage, footnote, children, onReset }: WixFormProps & { onReset: () => void }) {
   const [state, action, pending] = useActionState(submitForm.bind(null, formKey), { status: "idle" } as FormState);
+  const idPrefix = useId().replace(/:/g, "");
   const pathname = usePathname();
   const [startedAt, setStartedAt] = useState(0);
   useEffect(() => setStartedAt(Date.now()), []);
@@ -173,7 +175,7 @@ function WixFormInner({ formKey, submitLabel, successMessage, footnote, children
   if (state.status === "success") return <ThankYou name={state.firstName} message={successMessage} onReset={onReset} />;
 
   return (
-    <FormCtx.Provider value={{ state }}>
+    <FormCtx.Provider value={{ state, idPrefix }}>
       <form action={action} className="space-y-5" noValidate>
         {/* Spam protection: hidden honeypot + render timestamp. */}
         <div aria-hidden="true" className="absolute -left-[9999px] w-px h-px overflow-hidden">

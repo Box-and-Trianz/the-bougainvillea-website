@@ -49,8 +49,17 @@ type WixPost = {
 
 /* ------------------------- Rich content → markdown ------------------------ */
 
+/**
+ * Wix keeps the uploaded originals (often 2–5 MB PNGs). Asking Wix's image service for a
+ * 1920px JPEG first keeps the download small and makes our image optimisation near-instant.
+ */
+const sized = (url?: string) => {
+  const m = url?.match(/^https:\/\/static\.wixstatic\.com\/media\/([^/?#]+)$/);
+  return m ? `https://static.wixstatic.com/media/${m[1]}/v1/fit/w_1920,h_1920,q_90/file.jpg` : url;
+};
+
 const mediaUrl = (src?: { id?: string; url?: string }) =>
-  src?.url?.startsWith("http") ? src.url : src?.id ? `https://static.wixstatic.com/media/${src.id}` : undefined;
+  sized(src?.url?.startsWith("http") ? src.url : src?.id ? `https://static.wixstatic.com/media/${src.id}` : undefined);
 
 
 function text(nodes: WixNode[] = []): string {
@@ -150,7 +159,7 @@ function toPost(p: WixPost, categories: Map<string, string>): Post {
     slug: p.slug,
     title: p.title.trim().replace(/\s*\.$/, "").replace(/\s*–\s*/g, ": "),
     category,
-    cover: p.media?.wixMedia?.image?.url ?? p.media?.embedMedia?.thumbnail?.url ?? firstImage ?? "/og/default.jpg",
+    cover: sized(p.media?.wixMedia?.image?.url) ?? p.media?.embedMedia?.thumbnail?.url ?? firstImage ?? "/og/default.jpg",
     date: p.firstPublishedDate,
     excerpt: cleanExcerpt(p.excerpt),
     body,
