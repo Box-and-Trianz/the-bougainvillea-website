@@ -8,6 +8,7 @@ export default function Eyebrow({ children, className = "", light = false }: Pro
         className={`text-[11px] font-body font-semibold uppercase tracking-luxe ${
           light ? "text-champagne/90" : "text-gold"
         }`}
+id="champayne"
       >
         {children}
       </span>
