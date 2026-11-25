@@ -230,23 +230,21 @@ export function CorporateInquiryForm() {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Select label="Event Timing *" name="event_timing" required options={["Full Day", "Daytime", "Evening", "Multi-Day Event"]} />
-        <Select label="Estimated Guest Count *" name="guest_count" required options={["10–30", "31–75", "76–150", "151–250", "251–350+", "Other"]} />
+        <Select label="Estimated Guest Count *" name="guest_count" required options={["10–30", "31–75", "76–150", "151–250", "251–350+"]} />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Select
           label="Type of Event *"
           name="event_type"
           required
+          // Must match the "Type of Event" choices in the Wix "Business Event Inquiry Form".
           options={[
+            "Holiday Party",
             "Executive Retreat",
-            "Staff Meeting / Quarterly Review",
-            "Holiday Party / Gala",
-            "Awards Ceremony",
-            "Training / Workshop",
-            "Networking Mixer",
+            "Conference / Meeting",
+            "Appreciation / Awards Dinner",
             "Product Launch",
-            "Board / Investor Meeting",
-            "Nonprofit Fundraiser",
+            "Networking Reception",
             "Other",
           ]}
         />
@@ -254,10 +252,11 @@ export function CorporateInquiryForm() {
           label="Catering Needs *"
           name="catering_needs"
           required
-          options={["Breakfast", "Lunch", "Dinner", "Cocktail Reception / Hors d'oeuvres", "Coffee & Snacks Only", "No Catering Needed"]}
+          // Must match the "Catering Needs" choices in the Wix form.
+          options={["Full-service plated meal", "Buffet or stations", "Hors d'oeuvres & cocktails", "Beverage service only", "Not sure yet"]}
         />
       </div>
-      <Input label="Preferred Venue Tour Date & Time" name="tour_datetime" type="datetime-local" />
+      <Input label="Preferred Venue Tour Date & Time *" name="tour_datetime" type="datetime-local" required />
       <Textarea label="Message / Special Requests" name="message" />
     </WixForm>
   );

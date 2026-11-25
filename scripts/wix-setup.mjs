@@ -1,10 +1,12 @@
-// Creates (or reuses) the website's forms in the Wix site that .env.local points to,
-// then writes their IDs back into .env.local.
+// Connects the website's forms to forms in the Wix site that .env.local points to,
+// then writes their IDs into .env.local.
 //
-//   npm run wix:setup            -> dry run: shows the target site and what would be created
-//   npm run wix:setup -- --apply -> creates missing forms and saves the IDs
+//   npm run wix:setup            -> dry run: shows the target site and what each form connects to
+//   npm run wix:setup -- --apply -> saves the form IDs (and creates forms that have no "wix.form" target)
 //
-// Safe to re-run: forms are matched by name, existing ones are reused, never deleted.
+// Forms with a "wix" block in src/lib/wix/forms.json are sent into an EXISTING Wix form (matched by
+// name); the script checks that every mapped Wix field exists and every required Wix field is filled.
+// Safe to re-run: nothing is ever deleted.
 
 import crypto from "node:crypto";
 import fs from "node:fs";
@@ -111,7 +113,32 @@ const existing = await wix("POST", "/form-schema-service/v4/forms/query", {
 const byName = new Map((existing.forms ?? []).map((f) => [f.properties?.name ?? f.name, f]));
 
 const ids = {};
+let problems = 0;
 for (const def of Object.values(forms)) {
+  // Website form mapped onto an existing Wix form.
+  if (def.wix?.form) {
+    const found = byName.get(def.wix.form);
+    if (!found) {
+      console.log(`  ✗ ${def.name}: Wix form "${def.wix.form}" not found on this site`);
+      problems++;
+      continue;
+    }
+    const wixFields = (found.formFields ?? []).filter((f) => f.inputOptions?.target);
+    const targets = new Set(wixFields.map((f) => f.inputOptions.target));
+    const mapped = new Set([...Object.values(def.wix.map), def.wix.notes].filter(Boolean));
+    const unknown = [...mapped].filter((t) => !targets.has(t));
+    const ourRequired = new Set(def.fields.filter((f) => f.required).map((f) => def.wix.map[f.name]).filter(Boolean));
+    const uncovered = wixFields.filter((f) => f.inputOptions.required && !ourRequired.has(f.inputOptions.target)).map((f) => f.inputOptions.target);
+    const ok = !unknown.length && !uncovered.length;
+    if (!ok) problems++;
+    console.log(
+      `  ${ok ? "✓" : "✗"} ${def.name} → "${def.wix.form}" (${found.id})` +
+        (unknown.length ? ` — Wix fields not found: ${unknown.join(", ")}` : "") +
+        (uncovered.length ? ` — required in Wix but optional on the website: ${uncovered.join(", ")}` : "")
+    );
+    ids[def.env] = found.id;
+    continue;
+  }
   const found = byName.get(def.name);
   if (found) {
     const targets = new Set((found.formFields ?? []).map((f) => f.inputOptions?.target).filter(Boolean));
@@ -126,6 +153,8 @@ for (const def of Object.values(forms)) {
     console.log(`  - ${def.name}: would be created (${def.fields.length} fields)`);
   }
 }
+if (problems) console.log(`
+${problems} form(s) need attention before going live.`);
 
 if (apply) {
   let text = fs.readFileSync(envPath, "utf8").replace(/\s*$/, "\n");
@@ -136,5 +165,5 @@ if (apply) {
   fs.writeFileSync(envPath, text);
   console.log("Saved form IDs to .env.local");
 } else {
-  console.log("\nDry run only. Re-run with --apply to create the missing forms.");
+  console.log("\nDry run only. Re-run with --apply to save the form IDs to .env.local.");
 }
