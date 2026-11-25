@@ -177,12 +177,11 @@ function WixFormInner({ formKey, submitLabel, successMessage, footnote, children
   return (
     <FormCtx.Provider value={{ state, idPrefix }}>
       <form action={action} className="space-y-5" noValidate>
-        {/* Spam protection: hidden honeypot + render timestamp. */}
-        <div aria-hidden="true" className="absolute -left-[9999px] w-px h-px overflow-hidden">
-          <label>
-            Website
-            <input type="text" name="website" tabIndex={-1} autoComplete="off" />
-          </label>
+        {/* Spam protection: honeypot + render timestamp. The honeypot is display:none with a meaningless
+            name, so browser autofill and password managers never fill it (they did fill a visible-but-
+            offscreen "website" field, which silently dropped real submissions). Simple bots still do. */}
+        <div hidden aria-hidden="true">
+          <input type="text" name="hp_x7" tabIndex={-1} autoComplete="new-password" defaultValue="" />
         </div>
         <input type="hidden" name="started_at" value={startedAt} />
         <input type="hidden" name="page_source" value={pathname} />

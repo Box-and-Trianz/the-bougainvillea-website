@@ -33,7 +33,10 @@ export async function submitForm(key: FormKey, _prev: FormState, formData: FormD
   for (const f of def.fields) values[f.name] = String(formData.get(f.name) ?? "").slice(0, MAX_LEN).trim();
 
   // Honeypot: real visitors never see or fill this field.
-  if (String(formData.get("website") ?? "").trim()) return { status: "success", firstName: values.first_name || "friend" };
+  if (String(formData.get("hp_x7") ?? "").trim()) {
+    console.warn(`[forms] ${def.name}: dropped (spam field was filled)`);
+    return { status: "success", firstName: values.first_name || "friend" };
+  }
 
   // Validate first, so a visitor who submits an incomplete form quickly still sees what's missing.
   const fieldErrors: Record<string, string> = {};
@@ -48,7 +51,10 @@ export async function submitForm(key: FormKey, _prev: FormState, formData: FormD
 
   // A complete form sent < 2s after it appeared is a bot: pretend it worked, send nothing.
   const started = Number(formData.get("started_at") ?? 0);
-  if (started && Date.now() - started < 2000) return { status: "success", firstName: values.first_name || "friend" };
+  if (started && Date.now() - started < 2000) {
+    console.warn(`[forms] ${def.name}: dropped (sent ${Date.now() - started}ms after the page loaded)`);
+    return { status: "success", firstName: values.first_name || "friend" };
+  }
 
   const h = await headers();
   const ip = h.get("x-forwarded-for")?.split(",")[0].trim() || h.get("x-real-ip") || "local";
