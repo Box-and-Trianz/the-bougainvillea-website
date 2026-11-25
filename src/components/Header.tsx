@@ -27,19 +27,52 @@ export default function Header() {
     setOpenMenu(null);
   }, [pathname]);
 
+  // Most pages open with a dark photo hero; a few open on the light silk background instead.
+  const [heroIsLight, setHeroIsLight] = useState(() => pathname === "/schedule-a-tour" || pathname.startsWith("/blog/"));
+  useEffect(() => {
+    setHeroIsLight(!!document.querySelector("main > .silk-weave:first-child"));
+  }, [pathname]);
+
+  // Desktop only: at the top of a page the header is transparent over the hero. When that hero is a
+  // dark photo, use the light logo and light links. (Below xl the header always has a silk background.)
+  const overDark = !scrolled && !mobileOpen && !heroIsLight;
+  const topIdle = overDark ? "text-silk/90 hover:text-gold" : "text-obsidian/80 hover:text-gold";
+
   const isActive = (path: string) => (path === "/" ? pathname === "/" : pathname.startsWith(path));
+  const logoH = scrolled || mobileOpen ? "h-8 lg:h-10" : "h-9 lg:h-12";
 
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled || mobileOpen ? "glass shadow-[0_1px_30px_rgba(0,0,0,0.06)] py-3"
-          : "py-4 xl:py-6 bg-silk/80 backdrop-blur-md xl:bg-transparent xl:backdrop-blur-none"
+          : `py-4 xl:py-6 bg-silk/80 backdrop-blur-md xl:bg-transparent xl:backdrop-blur-none ${
+              overDark ? "xl:bg-gradient-to-b xl:from-obsidian/45 xl:to-transparent" : ""
+            }`
       }`}
     >
       <div className="mx-auto max-w-[1400px] px-6 lg:px-10 flex items-center justify-between">
-        <Link href="/" className="group flex flex-col leading-none">
-          <span className="font-display text-2xl lg:text-[28px] text-obsidian tracking-wide">The Bougainvilleas</span>
-          <span className="text-[9px] font-body uppercase tracking-luxe text-gold mt-1">Houston · Est. 2013</span>
+        <Link href="/" aria-label="The Bougainvilleas — home" className="flex-shrink-0">
+          <Image
+            src="/logo.png"
+            alt="The Bougainvilleas"
+            width={1200}
+            height={226}
+            priority
+            sizes="(min-width: 1024px) 250px, 200px"
+            className={`w-auto transition-all duration-500 ${logoH} ${overDark ? "xl:hidden" : ""}`}
+          />
+          {overDark && (
+            <Image
+              src="/logo-light.png"
+              alt=""
+              aria-hidden
+              width={1200}
+              height={226}
+              priority
+              sizes="250px"
+              className={`w-auto hidden xl:block ${logoH}`}
+            />
+          )}
         </Link>
 
         <nav className="hidden xl:flex items-center gap-8">
@@ -57,7 +90,7 @@ export default function Header() {
                     className={`flex items-center gap-1 ${linkCls} ${
                       venues.some((v) => pathname === `/${v.slug}`) || pathname === item.path
                         ? "text-gold"
-                        : "text-obsidian/80 hover:text-gold"
+                        : topIdle
                     }`}
                   >
                     {item.label}
@@ -102,7 +135,7 @@ export default function Header() {
                 >
                   <button
                     className={`flex items-center gap-1 ${linkCls} ${
-                      item.children.some((c) => isActive(c.path)) ? "text-gold" : "text-obsidian/80 hover:text-gold"
+                      item.children.some((c) => isActive(c.path)) ? "text-gold" : topIdle
                     }`}
                     aria-expanded={openMenu === item.label}
                     onClick={() => setOpenMenu(openMenu === item.label ? null : item.label)}
@@ -134,7 +167,7 @@ export default function Header() {
               <Link
                 key={item.label}
                 href={item.path}
-                className={`${linkCls} ${isActive(item.path) ? "text-gold" : "text-obsidian/80 hover:text-gold"}`}
+                className={`${linkCls} ${isActive(item.path) ? "text-gold" : topIdle}`}
               >
                 {item.label}
               </Link>
@@ -145,7 +178,7 @@ export default function Header() {
         <div className="hidden xl:block">
           <a
             href={`tel:${site.phone}`}
-            className="text-[12px] font-body font-semibold uppercase tracking-wide-luxe text-obsidian border-b border-gold pb-0.5 hover:text-gold transition-colors"
+            className={`text-[12px] font-body font-semibold uppercase tracking-wide-luxe ${overDark ? "text-silk" : "text-obsidian"} border-b border-gold pb-0.5 hover:text-gold transition-colors`}
           >
             {site.phone}
           </a>

@@ -55,8 +55,16 @@ export default function Footer() {
       <div className="border-t border-silk/10">
         <div className="mx-auto max-w-[1400px] px-6 lg:px-10 py-16 grid md:grid-cols-4 gap-10">
           <div className="md:col-span-2">
-            <p className="font-display text-3xl text-silk">The Bougainvilleas</p>
-            <p className="text-[10px] font-body uppercase tracking-luxe text-gold mt-2">
+            {/* Light version of the logo (lettering in silk, flowers kept) for the dark footer. */}
+            <Image
+              src="/logo-light.png"
+              alt="The Bougainvilleas"
+              width={1200}
+              height={226}
+              sizes="300px"
+              className="h-12 lg:h-14 w-auto"
+            />
+            <p className="text-[10px] font-body uppercase tracking-luxe text-gold mt-4">
               West Houston&apos;s Premier Event Venue
             </p>
             <p className="font-body text-sm text-silk/50 mt-6 max-w-sm leading-relaxed">
